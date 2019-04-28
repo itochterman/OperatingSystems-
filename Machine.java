@@ -84,9 +84,35 @@ public class Machine{
         machine.populateRand();
         runSimulation(machine);
 
+        float totalAvR = 0; 
+        int totalFaults = 0; 
+        int useableProc = 0; 
+
         for(int j = 0; j<machine.pList.size(); j++){
-            System.out.printf("Process %d had %d faults \n", (j+1), machine.pList.get(j).faults);
+            float x = (float) machine.pList.get(j).residency/machine.pList.get(j).evictions;
+            System.out.printf("Process %d had %d faults", (j+1), machine.pList.get(j).faults);
+            totalFaults += machine.pList.get(j).faults;
+            if(machine.pList.get(j).evictions != 0){
+                System.out.print(" and " + x +" average residency. \n");
+                totalAvR += x;
+                useableProc++; 
+
+            }
+            else{
+                System.out.println(".\n    With no evictions, the average residence is undefined.");
+
+            }
         }
+
+        if(totalFaults != 0){
+            System.out.println("The total number of faults is " +  totalFaults + " and the average residency is " +  (float)totalAvR/useableProc);
+        }
+        else{
+            System.out.printf("The total number of faults is %d\n", totalFaults);
+            System.out.println("     With no evictions, the overall average residence is undefined.");
+
+        }
+        System.out.println("");
 
 
     }
@@ -166,6 +192,7 @@ public class Machine{
             else{
                 System.out.println("");
             }
+            boolean resident = false;
             currentP.numReferences--;
 
             currentAdd = machine.calcNextAddr(currentP, currentAdd);
@@ -186,13 +213,9 @@ public class Machine{
         p.rand = y;   
         int RAND_MAX = (Integer.MAX_VALUE);
         y = y/(RAND_MAX + 1.0);
-        System.out.println("Y is: " + y);
-
-        System.out.println("Why no? Cuz = " + p.a);
 
 
         if(y < p.a){
-            System.out.println("HAHAHAHAHAHAHAHAHAHAHAHAHHAHAH");
             return ((currWord + 1 + processSize) % processSize);
         }
                 
@@ -227,6 +250,7 @@ public class Machine{
     public static void replacePage(Machine machine, LittleProcess p, int pageNumber){
 
         int frameNumber = 0; 
+        int process = 0; 
         frameTable.Frame tempFrame = new frameTable.Frame();
         ArrayList<frameTable.Frame> frameList = new ArrayList<>();
         ArrayList<frameTable.Frame> machineList = machine.frameTable.frameList;
@@ -248,6 +272,9 @@ public class Machine{
             }
         }
         if(success){
+
+            //p.residency += machine.totalClock - tempFrame.timeIn;
+
             tempFrame.empty = false;
             tempFrame.processNumber = p.pNumber;
             tempFrame.timeLastUsed = machine.totalClock;
@@ -255,6 +282,8 @@ public class Machine{
             tempFrame.pageNumber = pageNumber; 
             tempFrame.startAdd = (pageNumber) * machine.pageSize;
             tempFrame.endAdd = ((pageNumber+1) *machine.pageSize)-1;
+
+        
         }
 
         else{
@@ -275,11 +304,20 @@ public class Machine{
                         }
                     }
                     //evict the last recently used page
+                    
+                   
+                    LittleProcess proc = machine.pList.get(lru.processNumber-1); 
+                    proc.evictions++;
+                    proc.residency += machine.totalClock - lru.timeIn;
+
+
                     lru.processNumber = p.pNumber;
+                    lru.timeIn = machine.totalClock;
                     lru.timeLastUsed = machine.totalClock;
                     lru.pageNumber = pageNumber; 
                     lru.startAdd = (pageNumber) * machine.pageSize;
                     lru.endAdd = ((pageNumber+1) *machine.pageSize)-1;
+
                     break;
 
                 case "random":
@@ -287,13 +325,28 @@ public class Machine{
                     System.out.println("Process " + p.pNumber + " uses random:  " + y);
                     int numFrames = machine.frameTable.frameList.size();
                     y = y % numFrames;
+
+
                     frameTable.Frame frameToReplace = machine.frameTable.frameList.get(y);
+                    process = frameToReplace.processNumber;
+
+                    // for(int frame = 0; frame < machine.frameTable.frameList; frame++){
+                    //     if(machine.frameTable.frameList.get(frame))
+                    // }
+                    LittleProcess rp = machine.pList.get(frameToReplace.processNumber-1); 
+                    rp.evictions++;
+                    System.out.println("Machine clock is " + machine.totalClock);
+                    rp.residency += machine.totalClock - frameToReplace.timeIn;
+
+
                     frameToReplace.processNumber = p.pNumber;
                     frameToReplace.timeLastUsed = machine.totalClock;
+                    frameToReplace.timeIn = machine.totalClock;
                     frameToReplace.pageNumber = pageNumber; 
                     frameToReplace.startAdd = (pageNumber) * machine.pageSize;
                     frameToReplace.endAdd = ((pageNumber+1) *machine.pageSize)-1;
                     frameNumber = y; 
+
 
                     break;
                 case  "fifo":
@@ -305,9 +358,13 @@ public class Machine{
                             arrTime = machineList.get(j).timeIn;
                             firstIn = machineList.get(j);
                             frameNumber = j;
+                            process = firstIn.processNumber;
                         }
                     }
                     //evict the last recently used page
+                    LittleProcess fp = machine.pList.get(firstIn.processNumber-1); 
+                    fp.evictions++;
+                    fp.residency += machine.totalClock - firstIn.timeIn;
                     firstIn.processNumber = p.pNumber;
                     firstIn.timeLastUsed = machine.totalClock;
                     firstIn.timeIn = machine.totalClock;
@@ -318,7 +375,7 @@ public class Machine{
                     break; 
             }
         }
-        System.out.print(": Fault, using frame number " + frameNumber + "\n");
+        System.out.print(": Fault, using frame number " + frameNumber + " from Process " + process + "\n");
     }
 
 }

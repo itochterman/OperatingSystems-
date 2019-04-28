@@ -5,6 +5,7 @@ public class LittleProcess{
     public double  c; 
 
     public int faults;
+    public int evictions;
     public int residency; 
     public int numReferences; 
     public int currRef; 
