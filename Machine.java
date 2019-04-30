@@ -84,18 +84,18 @@ public class Machine{
         machine.populateRand();
         runSimulation(machine);
 
-        float totalAvR = 0; 
+        int totalRes = 0; 
+        int totalEvictions = 0; 
         int totalFaults = 0; 
-        int useableProc = 0; 
 
         for(int j = 0; j<machine.pList.size(); j++){
             float x = (float) machine.pList.get(j).residency/machine.pList.get(j).evictions;
+            totalRes += machine.pList.get(j).residency;
             System.out.printf("Process %d had %d faults", (j+1), machine.pList.get(j).faults);
             totalFaults += machine.pList.get(j).faults;
             if(machine.pList.get(j).evictions != 0){
                 System.out.print(" and " + x +" average residency. \n");
-                totalAvR += x;
-                useableProc++; 
+                totalEvictions += machine.pList.get(j).evictions;
 
             }
             else{
@@ -104,8 +104,8 @@ public class Machine{
             }
         }
 
-        if(totalFaults != 0){
-            System.out.println("The total number of faults is " +  totalFaults + " and the average residency is " +  (float)totalAvR/useableProc);
+        if(totalEvictions != 0){
+            System.out.println("The total number of faults is " +  totalFaults + " and the average residency is " +  (float)totalRes/totalEvictions);
         }
         else{
             System.out.printf("The total number of faults is %d\n", totalFaults);
@@ -161,7 +161,7 @@ public class Machine{
             LittleProcess currentP = machine.pList.get(i);
             currentP.started = true; 
 
-            System.out.println("\nprocess " + currentP.pNumber + " references word " + currentAdd + " at time " + (machine.totalClock+1));
+            // System.out.println("\nprocess " + currentP.pNumber + " references word " + currentAdd + " at time " + (machine.totalClock+1));
 
 
 
@@ -189,9 +189,9 @@ public class Machine{
                 replacePage(machine, currentP, pageNumber);
 
             }
-            else{
-                System.out.println("");
-            }
+            // else{
+            //     System.out.println("");
+            // }
             boolean resident = false;
             currentP.numReferences--;
 
@@ -228,8 +228,8 @@ public class Machine{
         else{
             int rand = this.randomIn.nextInt();
             int num = rand % processSize;
-            System.out.println("Next ref " + num);
-            System.out.println("By using random:  " + rand);
+            // System.out.println("Next ref " + num);
+            // System.out.println("By using random:  " + rand);
 
             return num;
 
@@ -299,24 +299,24 @@ public class Machine{
                     for(int j = 0; j < machineList.size(); j++){
                         if(machineList.get(j).timeLastUsed < minTime){
                             minTime = machineList.get(j).timeLastUsed;
-                            lru = machineList.get(j);
+                            tempFrame = machineList.get(j);
                             frameNumber = j;
                         }
                     }
                     //evict the last recently used page
                     
                    
-                    LittleProcess proc = machine.pList.get(lru.processNumber-1); 
+                    LittleProcess proc = machine.pList.get(tempFrame.processNumber-1); 
                     proc.evictions++;
-                    proc.residency += machine.totalClock - lru.timeIn;
+                    proc.residency += machine.totalClock - tempFrame.timeIn;
 
 
-                    lru.processNumber = p.pNumber;
-                    lru.timeIn = machine.totalClock;
-                    lru.timeLastUsed = machine.totalClock;
-                    lru.pageNumber = pageNumber; 
-                    lru.startAdd = (pageNumber) * machine.pageSize;
-                    lru.endAdd = ((pageNumber+1) *machine.pageSize)-1;
+                    // lru.processNumber = p.pNumber;
+                    // lru.timeIn = machine.totalClock;
+                    // lru.timeLastUsed = machine.totalClock;
+                    // lru.pageNumber = pageNumber; 
+                    // lru.startAdd = (pageNumber) * machine.pageSize;
+                    // lru.endAdd = ((pageNumber+1) *machine.pageSize)-1;
 
                     break;
 
@@ -327,54 +327,62 @@ public class Machine{
                     y = y % numFrames;
 
 
-                    frameTable.Frame frameToReplace = machine.frameTable.frameList.get(y);
-                    process = frameToReplace.processNumber;
+                    tempFrame= machine.frameTable.frameList.get(y);
+                    process = tempFrame.processNumber;
 
                     // for(int frame = 0; frame < machine.frameTable.frameList; frame++){
                     //     if(machine.frameTable.frameList.get(frame))
                     // }
-                    LittleProcess rp = machine.pList.get(frameToReplace.processNumber-1); 
+                    LittleProcess rp = machine.pList.get(tempFrame.processNumber-1); 
                     rp.evictions++;
                     System.out.println("Machine clock is " + machine.totalClock);
-                    rp.residency += machine.totalClock - frameToReplace.timeIn;
+                    rp.residency += machine.totalClock - tempFrame.timeIn;
 
 
-                    frameToReplace.processNumber = p.pNumber;
-                    frameToReplace.timeLastUsed = machine.totalClock;
-                    frameToReplace.timeIn = machine.totalClock;
-                    frameToReplace.pageNumber = pageNumber; 
-                    frameToReplace.startAdd = (pageNumber) * machine.pageSize;
-                    frameToReplace.endAdd = ((pageNumber+1) *machine.pageSize)-1;
+                    // frameToReplace.processNumber = p.pNumber;
+                    // frameToReplace.timeLastUsed = machine.totalClock;
+                    // frameToReplace.timeIn = machine.totalClock;
+                    // frameToReplace.pageNumber = pageNumber; 
+                    // frameToReplace.startAdd = (pageNumber) * machine.pageSize;
+                    // frameToReplace.endAdd = ((pageNumber+1) *machine.pageSize)-1;
                     frameNumber = y; 
 
 
                     break;
                 case  "fifo":
                     int arrTime = Integer.MAX_VALUE;
-                    frameTable.Frame firstIn = new frameTable.Frame();
+                    //frameTable.Frame firstIn = new frameTable.Frame();
            
                     for(int j = 0; j < machineList.size(); j++){
                         if(machineList.get(j).timeIn < arrTime){
                             arrTime = machineList.get(j).timeIn;
-                            firstIn = machineList.get(j);
+                            tempFrame = machineList.get(j);
                             frameNumber = j;
-                            process = firstIn.processNumber;
+                            process = tempFrame.processNumber;
                         }
                     }
                     //evict the last recently used page
-                    LittleProcess fp = machine.pList.get(firstIn.processNumber-1); 
+                    LittleProcess fp = machine.pList.get(tempFrame.processNumber-1); 
                     fp.evictions++;
-                    fp.residency += machine.totalClock - firstIn.timeIn;
-                    firstIn.processNumber = p.pNumber;
-                    firstIn.timeLastUsed = machine.totalClock;
-                    firstIn.timeIn = machine.totalClock;
-                    firstIn.pageNumber = pageNumber; 
-                    firstIn.startAdd = (pageNumber) * machine.pageSize;
-                    firstIn.endAdd = ((pageNumber+1) *machine.pageSize)-1;
+                    fp.residency += machine.totalClock - tempFrame.timeIn;
+
+                    // firstIn.processNumber = p.pNumber;
+                    // firstIn.timeLastUsed = machine.totalClock;
+                    // firstIn.timeIn = machine.totalClock;
+                    // firstIn.pageNumber = pageNumber; 
+                    // firstIn.startAdd = (pageNumber) * machine.pageSize;
+                    // firstIn.endAdd = ((pageNumber+1) *machine.pageSize)-1;
                     //if the input is "fifo"
                     break; 
             }
         }
+        tempFrame.processNumber = p.pNumber;
+        tempFrame.timeLastUsed = machine.totalClock;
+        tempFrame.timeIn = machine.totalClock; 
+        tempFrame.pageNumber = pageNumber; 
+        tempFrame.startAdd = (pageNumber) * machine.pageSize;
+        tempFrame.endAdd = ((pageNumber+1) *machine.pageSize)-1;
+
         System.out.print(": Fault, using frame number " + frameNumber + " from Process " + process + "\n");
     }
 
