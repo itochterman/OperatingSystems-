@@ -44,7 +44,7 @@ public class Machine{
         machine.numRef = Integer.parseInt(args[4]);
 
         machine.frameTable = new frameTable(machine.machineSize/machine.pageSize, machine.pageSize, 111 % machine.processSize);
-
+        
         switch(Integer.parseInt(args[3])){
 
             case 1: 
@@ -87,6 +87,18 @@ public class Machine{
         int totalRes = 0; 
         int totalEvictions = 0; 
         int totalFaults = 0; 
+
+        System.out.printf("The machine size is %d.\n", machine.machineSize);
+        System.out.printf("The page size is %d. \n", machine.pageSize);
+        System.out.printf("The process size is %d. \n", machine.processSize);
+        System.out.printf("The page size is %d. \n", machine.processSize);
+        System.out.printf("The job mix number is %d. \n", Integer.parseInt(args[3]));
+        System.out.printf("The number of references per process is %d. \n", machine.numRef);
+        System.out.printf("The replacement algorithm is %s. \n\n", machine.repAlgo);
+
+
+
+
 
         for(int j = 0; j<machine.pList.size(); j++){
             float x = (float) machine.pList.get(j).residency/machine.pList.get(j).evictions;
@@ -292,9 +304,9 @@ public class Machine{
                 case "lru":
                     int minTime= Integer.MAX_VALUE;
                     frameTable.Frame lru = new frameTable.Frame();
-                    for(int in = 0; in < machineList.size(); in++){
-                        System.out.println("Time last used: " + machineList.get(in).timeLastUsed);
-                    }
+                    // for(int in = 0; in < machineList.size(); in++){
+                    //     System.out.println("Time last used: " + machineList.get(in).timeLastUsed);
+                    // }
 
                     for(int j = 0; j < machineList.size(); j++){
                         if(machineList.get(j).timeLastUsed < minTime){
@@ -322,7 +334,7 @@ public class Machine{
 
                 case "random":
                     int y = (int)machine.randomIn.nextInt();
-                    System.out.println("Process " + p.pNumber + " uses random:  " + y);
+                    // System.out.println("Process " + p.pNumber + " uses random:  " + y);
                     int numFrames = machine.frameTable.frameList.size();
                     y = y % numFrames;
 
@@ -335,7 +347,7 @@ public class Machine{
                     // }
                     LittleProcess rp = machine.pList.get(tempFrame.processNumber-1); 
                     rp.evictions++;
-                    System.out.println("Machine clock is " + machine.totalClock);
+                    // System.out.println("Machine clock is " + machine.totalClock);
                     rp.residency += machine.totalClock - tempFrame.timeIn;
 
 
@@ -383,7 +395,7 @@ public class Machine{
         tempFrame.startAdd = (pageNumber) * machine.pageSize;
         tempFrame.endAdd = ((pageNumber+1) *machine.pageSize)-1;
 
-        System.out.print(": Fault, using frame number " + frameNumber + " from Process " + process + "\n");
+        // System.out.print(": Fault, using frame number " + frameNumber + " from Process " + process + "\n");
     }
 
 }
