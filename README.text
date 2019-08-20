@@ -1,0 +1,25 @@
+-------------------               
+irt221 lab 2 README
+-------------------
+
+Uploading to crackle1: 
+
+1) Fetch the zip file labeled "irt221_lab4" from the assignment page on NYU classes. Unzip it. This directory should include files labeled "Machine.java", "LittleProcess.java", "frameTable.java", this README.txt (present file), as well as the same random-numbers.txt file that Professor S. initially included. 
+2) Recursively upload the entire directory labeled "irt221_lab4" to the crackle1 server using the 
+-r command. 
+
+Compilation process: 
+
+1) First and foremost, you must make sure that your current working directory is irt221_lab4. If it is not, please change directories using the "cd" command such that your working directory is irt221_lab4, the one you uploaded to crackle1. Also, please make sure the random-numbers.txt file is also in the current directory, as well as all necessary input files. For your convenience, I have included a copy of the file provided by Prof. S. 
+
+2) From the directory irt221_lab4, enter the command: javac Machine.java. 
+
+
+
+Running the program: 
+
+1) You should now have a Machine.class file present in your working directory. Run the program by pasting in or typing the set of 6 input values you are instructed to use. Possible commands could be "java Machine 10 10 20 1 10 lru," or "java Machine 20 10 10 2 10 random." 
+
+On errors, ect.: 
+
+Please follow the standard format provided for input. 
